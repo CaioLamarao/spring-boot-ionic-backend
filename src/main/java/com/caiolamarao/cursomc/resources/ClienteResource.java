@@ -1,5 +1,6 @@
 package com.caiolamarao.cursomc.resources;
 
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.caiolamarao.cursomc.domain.Cliente;
 import com.caiolamarao.cursomc.dto.ClienteDTO;
+import com.caiolamarao.cursomc.dto.ClienteNewDTO;
 import com.caiolamarao.cursomc.services.ClienteService;
 
 @RestController
@@ -30,6 +33,14 @@ public class ClienteResource {
 	public ResponseEntity<Cliente> find(@PathVariable Integer id) {
 		Cliente obj = service.find(id);
 		return ResponseEntity.ok(obj);
+	}
+	
+	@RequestMapping(method = RequestMethod.POST)
+	public ResponseEntity<Void> insert(@Valid @RequestBody ClienteNewDTO objDto) {
+		Cliente obj = service.fromDTO(objDto);
+		obj = service.insert(obj);
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
+		return ResponseEntity.created(uri).build();
 	}
 	
 	@RequestMapping(value = "/{id}",method = RequestMethod.PUT)
@@ -64,4 +75,6 @@ public class ClienteResource {
 		Page<ClienteDTO> listDto = list.map(obj -> new ClienteDTO(obj));
 		return ResponseEntity.ok(listDto);
 	}
+	
+	
 }
